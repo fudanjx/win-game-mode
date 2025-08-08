@@ -75,6 +75,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
-
-- Thanks to all contributors and testers
-- Special thanks to the .NET and Windows Forms communities
+- Credit to the .NET and Windows Forms communities

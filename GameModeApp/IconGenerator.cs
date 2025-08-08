@@ -1,18 +1,41 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 
 namespace GameModeApp
 {
     public static class IconGenerator
     {
+        // Path for custom icon image
+        private static readonly string CustomIconImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "custom-icon.png");
+
         public static void GenerateIcons()
         {
             string resourcesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
             Directory.CreateDirectory(resourcesPath);
 
-            GenerateAppIcon(Path.Combine(resourcesPath, "app.ico"));
+            // Generate app icon (look for custom icon first)
+            string iconPath = Path.Combine(resourcesPath, "app.ico");
+            if (File.Exists(CustomIconImagePath))
+            {
+                try
+                {
+                    GenerateIconFromImage(CustomIconImagePath, iconPath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to generate icon from image: {ex.Message}");
+                    GenerateAppIcon(iconPath);
+                }
+            }
+            else
+            {
+                GenerateAppIcon(iconPath);
+            }
+
             GenerateActiveIcon(Path.Combine(resourcesPath, "active.ico"));
             GenerateInactiveIcon(Path.Combine(resourcesPath, "inactive.ico"));
         }
@@ -89,6 +112,31 @@ namespace GameModeApp
                     using (FileStream fs = new FileStream(path, FileMode.Create))
                     {
                         icon.Save(fs);
+                    }
+                }
+            }
+        }
+
+        private static void GenerateIconFromImage(string imagePath, string iconPath)
+        {
+            // Load the source image
+            using (Bitmap sourceImage = new Bitmap(imagePath))
+            {
+                // Create a simple 32x32 icon which is standard size
+                using (Bitmap iconBitmap = new Bitmap(32, 32))
+                using (Graphics g = Graphics.FromImage(iconBitmap))
+                {
+                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.DrawImage(sourceImage, 0, 0, 32, 32);
+                    
+                    // Save as icon
+                    IntPtr hIcon = iconBitmap.GetHicon();
+                    using (Icon icon = Icon.FromHandle(hIcon))
+                    {
+                        using (FileStream fs = new FileStream(iconPath, FileMode.Create))
+                        {
+                            icon.Save(fs);
+                        }
                     }
                 }
             }

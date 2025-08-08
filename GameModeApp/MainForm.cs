@@ -11,7 +11,9 @@ namespace GameModeApp
         private NotifyIcon? trayIcon;
         private ContextMenuStrip? trayMenu;
         private KeyboardHook keyboardHook;
+        private MouseHook mouseHook;
         private bool isGameModeActive = false;
+        private KeyMappingProfile currentProfile = KeyMappingProfile.Disabled;
 
         // Icons for active and inactive states
         private Icon? activeIcon;
@@ -21,9 +23,12 @@ namespace GameModeApp
         {
             // We're creating UI manually, not using InitializeComponent
             
-            // Initialize the keyboard hook
+            // Initialize hooks
             keyboardHook = new KeyboardHook();
             keyboardHook.KeyBlocked += KeyboardHook_KeyBlocked;
+            
+            mouseHook = new MouseHook();
+            mouseHook.MouseButtonDetected += MouseHook_MouseButtonDetected;
 
             // Set up the tray icon and menu
             SetupTrayIcon();
@@ -88,6 +93,18 @@ namespace GameModeApp
             trayMenu = new ContextMenuStrip();
             trayMenu.Items.Add("Enable Game Mode", null, OnToggleGameMode);
             trayMenu.Items.Add("-"); // Separator
+            
+            // Key mapping profile submenu
+            ToolStripMenuItem profileMenu = new ToolStripMenuItem("Key Mapping Profile");
+            profileMenu.DropDownItems.Add("Disabled", null, OnProfileDisabled);
+            profileMenu.DropDownItems.Add("CSGO", null, OnProfileCSGO);
+            profileMenu.DropDownItems.Add("Overwatch", null, OnProfileOverwatch);
+            
+            // Mark the current profile in the menu
+            ((ToolStripMenuItem)profileMenu.DropDownItems[0]).Checked = true;
+            
+            trayMenu.Items.Add(profileMenu);
+            trayMenu.Items.Add("-"); // Separator
             trayMenu.Items.Add("Exit", null, OnExit);
 
             trayIcon = new NotifyIcon();
@@ -101,6 +118,12 @@ namespace GameModeApp
         private void KeyboardHook_KeyBlocked(object? sender, KeyEventArgs e)
         {
             // Simplified key blocked handler - no action needed
+        }
+        
+        private void MouseHook_MouseButtonDetected(object? sender, string message)
+        {
+            // For debugging purposes - can be used to show a notification
+            Debug.WriteLine(message);
         }
 
         private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
@@ -126,6 +149,14 @@ namespace GameModeApp
                 // Enable the keyboard hook
                 keyboardHook.Uninstall(); // First uninstall in case it was already installed
                 keyboardHook.Install();   // Then reinstall it fresh
+                
+                // Enable the mouse hook if profile is not disabled
+                if (currentProfile != KeyMappingProfile.Disabled)
+                {
+                    mouseHook.Uninstall();
+                    mouseHook.Install();
+                }
+
                 if (trayIcon != null && activeIcon != null)
                 {
                     trayIcon.Icon = activeIcon;
@@ -140,6 +171,10 @@ namespace GameModeApp
             {
                 // Disable the keyboard hook
                 keyboardHook.Uninstall();
+                
+                // Disable the mouse hook
+                mouseHook.Uninstall();
+
                 if (trayIcon != null && inactiveIcon != null)
                 {
                     trayIcon.Icon = inactiveIcon;
@@ -157,7 +192,8 @@ namespace GameModeApp
             if (trayIcon != null)
             {
                 string gameMode = isGameModeActive ? "Active" : "Inactive";
-                trayIcon.Text = $"Game Mode - {gameMode}";
+                string profile = currentProfile == KeyMappingProfile.Disabled ? "" : $" - {currentProfile}";
+                trayIcon.Text = $"Game Mode - {gameMode}{profile}";
             }
         }
 
@@ -169,6 +205,7 @@ namespace GameModeApp
                 trayIcon.Visible = false;
             }
             keyboardHook.Uninstall();
+            mouseHook.Uninstall();
             
             Application.Exit();
         }
@@ -178,5 +215,61 @@ namespace GameModeApp
             // Keep the form hidden
             base.SetVisibleCore(false);
         }
+        
+        #region Profile Menu Handlers
+        
+        private void OnProfileDisabled(object? sender, EventArgs e)
+        {
+            SetProfile(KeyMappingProfile.Disabled);
+        }
+        
+        private void OnProfileCSGO(object? sender, EventArgs e)
+        {
+            SetProfile(KeyMappingProfile.CSGO);
+        }
+        
+        private void OnProfileOverwatch(object? sender, EventArgs e)
+        {
+            SetProfile(KeyMappingProfile.OW);
+        }
+        
+        private void SetProfile(KeyMappingProfile profile)
+        {
+            // Update the current profile
+            currentProfile = profile;
+            mouseHook.CurrentProfile = profile;
+            
+            // Update checkmarks in the menu
+            if (trayMenu != null)
+            {
+                ToolStripMenuItem profileMenu = (ToolStripMenuItem)trayMenu.Items[2];
+                
+                // Clear all check marks
+                foreach (ToolStripMenuItem item in profileMenu.DropDownItems)
+                {
+                    item.Checked = false;
+                }
+                
+                // Set the check mark for the selected profile
+                int profileIndex = (int)profile;
+                ((ToolStripMenuItem)profileMenu.DropDownItems[profileIndex]).Checked = true;
+            }
+            
+            // Update the tray text
+            UpdateTrayText();
+            
+            // Reinstall mouse hook if game mode is active and profile is not disabled
+            if (isGameModeActive && profile != KeyMappingProfile.Disabled)
+            {
+                mouseHook.Uninstall();
+                mouseHook.Install();
+            }
+            else
+            {
+                mouseHook.Uninstall();
+            }
+        }
+        
+        #endregion
     }
 }

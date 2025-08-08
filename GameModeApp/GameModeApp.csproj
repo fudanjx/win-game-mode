@@ -15,6 +15,8 @@
     <AssemblyTitle>GameMode</AssemblyTitle>
     <Version>1.0.0</Version>
     
+    <!-- Assembly information -->
+    
     <!-- Disable auto-generation to prevent conflicts -->
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>

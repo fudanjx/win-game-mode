@@ -24,16 +24,13 @@ namespace GameModeApp
             {
                 g.Clear(Color.Transparent);
                 
-                // Draw a game controller shape
-                g.FillRectangle(Brushes.DarkGray, 6, 12, 20, 8);
-                g.FillEllipse(Brushes.DarkGray, 2, 8, 12, 16);
-                g.FillEllipse(Brushes.DarkGray, 18, 8, 12, 16);
+                // Draw a simple icon - keyboard with Windows key blocked
+                g.FillRectangle(Brushes.DarkGray, 4, 8, 24, 16);
 
-                // Add some details
-                g.FillEllipse(Brushes.Black, 6, 12, 4, 4);
-                g.FillEllipse(Brushes.Black, 12, 12, 4, 4);
-                g.FillEllipse(Brushes.Black, 18, 12, 4, 4);
-                g.FillEllipse(Brushes.Black, 24, 12, 4, 4);
+                // Draw Windows key
+                g.FillRectangle(Brushes.White, 8, 12, 6, 6);
+                g.DrawLine(new Pen(Color.White, 2), 10, 12, 12, 18);
+                g.DrawLine(new Pen(Color.White, 2), 8, 15, 14, 15);
 
                 SaveAsIcon(bitmap, path);
             }
@@ -50,7 +47,7 @@ namespace GameModeApp
                 g.FillRectangle(Brushes.Green, 4, 4, 24, 24);
                 
                 // Add a "Win" symbol with a line through it to indicate blocked
-                g.DrawString("Win", new Font("Arial", 12, FontStyle.Bold), Brushes.White, 2, 6);
+                g.DrawString("Win", new Font("Arial", 10, FontStyle.Bold), Brushes.White, 6, 8);
                 g.DrawLine(new Pen(Color.Red, 2), 4, 4, 28, 28);
 
                 SaveAsIcon(bitmap, path);
@@ -68,7 +65,7 @@ namespace GameModeApp
                 g.FillRectangle(Brushes.Gray, 4, 4, 24, 24);
                 
                 // Add a "Win" symbol
-                g.DrawString("Win", new Font("Arial", 12, FontStyle.Bold), Brushes.White, 2, 6);
+                g.DrawString("Win", new Font("Arial", 10, FontStyle.Bold), Brushes.White, 6, 8);
 
                 SaveAsIcon(bitmap, path);
             }

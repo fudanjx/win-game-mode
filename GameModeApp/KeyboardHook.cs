@@ -62,13 +62,15 @@ namespace GameModeApp
         {
             if (nCode >= 0 && IsHookEnabled)
             {
-                int vkCode = Marshal.ReadInt32(lParam);
-                bool blockKey = false;
+                int messageType = wParam.ToInt32();
+                KBDLLHOOKSTRUCT keyInfo = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
+                int vkCode = keyInfo.vkCode;
                 
-                // Check if the key is one of the Win keys
+                // Always block any Windows key events (down, up, etc.)
                 if (vkCode == VK_LWIN || vkCode == VK_RWIN)
                 {
-                    blockKey = true;
+                    KeyBlocked?.Invoke(this, new KeyEventArgs((Keys)vkCode));
+                    return (IntPtr)1; // Block the key
                 }
                 
                 // Block certain Win key combinations (like Win+Tab, Win+D, etc.)
@@ -83,14 +85,9 @@ namespace GameModeApp
                         vkCode == (int)Keys.S ||   // Win+S (Search)
                         vkCode == (int)Keys.X)     // Win+X (Power User Menu)
                     {
-                        blockKey = true;
+                        KeyBlocked?.Invoke(this, new KeyEventArgs((Keys)vkCode));
+                        return (IntPtr)1; // Block the key
                     }
-                }
-
-                if (blockKey)
-                {
-                    KeyBlocked?.Invoke(this, new KeyEventArgs((Keys)vkCode));
-                    return (IntPtr)1;
                 }
             }
 
@@ -98,6 +95,16 @@ namespace GameModeApp
         }
 
         #region DLL Imports
+        
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KBDLLHOOKSTRUCT
+        {
+            public int vkCode;
+            public int scanCode;
+            public int flags;
+            public int time;
+            public IntPtr dwExtraInfo;
+        }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook,

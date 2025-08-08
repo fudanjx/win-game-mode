@@ -1,0 +1,57 @@
+# .NET build output
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio files
+.vs/
+.claude/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# Visual Studio cache files
+# files ending in .cache can be ignored
+*.[Cc]ache
+# but keep track of directories ending in .cache
+!?*.[Cc]ache/
+
+# Others
+.DS_Store
+CLAUDE.md
+*.swp
+*.bak
+*.tmp
+*~
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+*.zip

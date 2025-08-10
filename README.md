@@ -1,6 +1,8 @@
 # GameMode - Windows Key Blocker & Mouse Button Mapper for Gaming
 
+
 A lightweight Windows utility that enhances your gaming experience by disabling the Windows key during gameplay and remapping mouse side buttons to custom keyboard shortcuts.
+<img width="412" height="225" alt="game_mode" src="https://github.com/user-attachments/assets/77e0f8ed-f7ed-48be-a13e-3a116ac901b6" />
 
 ## Features
 
